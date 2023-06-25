@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<HTML>
+
+<HEAD>
+    <title>ESP32 SID Tester</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        legend {
+            font-size: small;
+        }
+
+        fieldset {
+            padding: 10px;
+            margin-bottom: 5px;
+        }
+
+        div {
+            border-width: 0px;
+            border-style: dotted;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            background-color: beige;
+        }
+
+        span {
+            border-width: 1px;
+            border-style: solid;
+            ;
+            border-color: gray;
+            background-color: navajowhite;
+            padding: 5px;
+            margin: 2px;
+        }
+
+        h4 {
+            font-weight: normal;
+            background-color: lightgray;
+            border-style: solid;
+            border-width: 1px;
+            padding: 1px;
+            margin: 0;
+        }
+
+        .slider {
+            vertical-align: bottom;
+            /*margin-bottom: 0px;*/
+        }
+
+        .number {
+            width: 4em;
+        }
+
+        .sep {
+            border-right: 0;
+            margin-right: 0px;
+            /*background-color: blueviolet;*/
+        }
+
+        /*        #freq {
+            width: 70px
+        }*/
+    </style>
+</HEAD>
+
+<BODY>
+    <h2>C64 SID tester</h2>
+    <fieldset id="voices">
+        <legend>
+            <select id="model" onchange="set_model(this.selectedIndex)">
+                <option>ESP 32</option>
+                <option>C64 NTSC</option>
+                <option>C64 PAL</option>
+            </select>
+            <select id="voice" onchange="set_voice_field(this.selectedIndex)">
+                <option>Voice 1</option>
+                <option>Voice 2</option>
+                <option>Voice 3</option>
+            </select>
+        </legend>
+        <div>
+            <span>
+                <label for="sld_frq">Frequency</label>
+                <input type="range" class="slider" id="sld_frq" min="1" max="3906" oninput="on_frqchange(this)">
+                <input type="number" id="inp_freq" class="number" min="1" max="4000" oninput="on_frqchange(this)">
+                <span class="sep"></span>
+                <label for="note">Note</label>
+                <select id="note" onchange="on_frqchange(this)"></select>
+            </span>
+            <span>
+                <label id="l_reg1" name="l_reg"></label>
+                <label id="reg1"></label>
+            </span>
+            <span>
+                <label id="l_reg0" name="l_reg"></label>
+                <label id="reg0"></label>
+            </span>
+        </div>
+        <div>
+            <span>
+                <label for="duty">Duty Cycle</label>
+                <input type="range" class="slider" id="duty" min="0" max="4095" oninput="on_dutychange(this.value)">
+            </span>
+            <span>
+                <label id="l_reg3" name="l_reg"></label>
+                <label id="reg3"></label>
+            </span>
+            <span>
+                <label id="l_reg2" name="l_reg"></label>
+                <label id="reg2"></label>
+            </span>
+        </div>
+        <div>
+            <span>
+                <label for="reg4_b7">Noise</label>
+                <input id="reg4_b7" type="radio" name="waveform" value="128" onclick="on_wfchange(this)">
+                <span class="sep"></span>
+                <label for="reg4_b6">Rectangle</label>
+                <input id="reg4_b6" type="radio" name="waveform" value="64" onclick="on_wfchange(this)">
+                <span class="sep"></span>
+                <label for="reg4_b5">Sawtooth</label>
+                <input id="reg4_b5" type="radio" name="waveform" value="32" onclick="on_wfchange(this)">
+                <span class="sep"></span>
+                <label for="reg4_b4">Triangle</label>
+                <input id="reg4_b4" type="radio" name="waveform" value="16" onclick="on_wfchange(this)">
+                <span class="sep"></span>
+                <label for="reg4_b3">Test</label>
+                <input id="reg4_b3" type="checkbox" name="waveform" value="8" onclick="on_wfchange(this)">
+                <span class="sep"></span>
+                <span style="border: 0px; padding-left: 0px;" id="r4b1_2">
+                    <label for="reg4_b2">Ring 3</label>
+                    <input id="reg4_b2" type="checkbox" name="waveform" value="4" onclick="on_wfchange(this)">
+                    <span class="sep"></span>
+                    <label for="reg4_b1">Sync 3</label>
+                    <input id="reg4_b1" type="checkbox" name="waveform" value="2" onclick="on_wfchange(this)">
+                    <span class="sep"></span>
+                </span>
+                <label for="reg4_b0">Gate</label>
+                <input id="reg4_b0" type="checkbox" name="waveform" value="1" onclick="on_wfchange(this)">
+            </span>
+            <span>
+                <label id="l_reg4" name="l_reg"></label>
+                <label id="reg4"></label>
+            </span>
+        </div>
+        <div>
+            <span>
+                <label for="attack">Attack</label>
+                <select id="attack" onchange="on_adchange(this)"></select>
+                <span class="sep"></span>
+                <label for="decay">Decay</label>
+                <select id="decay" onchange="on_adchange(this)"></select>
+            </span>
+            <span>
+                <label id="l_reg5" name="l_reg"></label>
+                <label id="reg5">9</label>
+            </span>
+        </div>
+        <div>
+            <span>
+                <label for="sustain">Sustain level</label>
+                <input id="sustain" type="range" class="slider" min="0" max="15" onchange="on_srchange(this)">
+                <span class="sep"></span>
+                <label for="release">Release</label>
+                <select id="release" onchange="on_srchange(this)"></select>
+            </span>
+            <span>
+                <label id="l_reg6" name="l_reg"></label>
+                <label id="reg6"></label>
+            </span>
+        </div>
+    </fieldset>
+    <fieldset style="background-color: rgb(112, 143, 228);">
+        <legend>
+            <h4>Filter</h4>
+        </legend>
+        <div>
+            <span>
+                <label for="filterF_range">Frequency</label>
+                <input type="range" id="filterF_range" name="filt_f" class="slider" min="30" max="10000"
+                    oninput="on_filterFchange(this)">
+                <input type="number" id="filterF_num" class="number" name="filt_f" min="30" max="10000"
+                    onchange="on_filterFchange(this)">
+            </span>
+            <span>
+                <label id="l_reg22" name="l_reg"></label>
+                <label id="reg22"></label>
+            </span>
+            <span>
+                <label id="l_reg21" name="l_reg"></label>
+                <label id="reg21"></label>
+            </span>
+        </div>
+        <div>
+            <span>
+                <label for="filterR_range">Resonance</label>
+                <input type="range" id="filterR_range" class="slider" min="0" max="15" oninput="on_filterRchange(this)">
+                <span class="sep"></span>
+                <label for="reg23_b3">Ext.</label>
+                <input id="reg23_b3" type="checkbox" name="f_enable" value="8" onclick="on_filterRchange(this)">
+                <span class="sep"></span>
+                <label for="reg23_b2">Voice 3</label>
+                <input id="reg23_b2" type="checkbox" name="f_enable" value="4" onclick="on_filterRchange(this)">
+                <span class="sep"></span>
+                <label for="reg23_b1">Voice 2</label>
+                <input id="reg23_b1" type="checkbox" name="f_enable" value="2" onclick="on_filterRchange(this)">
+                <span class="sep"></span>
+                <label for="reg23_b0">Voice 1</label>
+                <input id="reg23_b0" type="checkbox" name="f_enable" value="1" onclick="on_filterRchange(this)">
+            </span>
+            <span>
+                <label id="l_reg23" name="l_reg"></label>
+                <label id="reg23"></label>
+            </span>
+        </div>
+        <div>
+            <span>
+                <label for="reg24_b7">Mute 3</label>
+                <input id="reg24_b7" type="checkbox" name="pass" value="128" onclick="on_volumechange(this)">
+                <span class="sep"></span>
+                <label for="reg24_b6">Highpass</label>
+                <input id="reg24_b6" type="radio" name="pass" value="64" onclick="on_volumechange(this)">
+                <span class="sep"></span>
+                <label for="reg24_b5">Bandpass</label>
+                <input id="reg24_b5" type="radio" name="pass" value="32" onclick="on_volumechange(this)">
+                <span class="sep"></span>
+                <label for="reg24_b4">Lowpass</label>
+                <input id="reg24_b4" type="radio" name="pass" value="16" onclick="on_volumechange(this)">
+                <span class="sep"></span>
+                <label for="volume">Volume</label>
+                <input id="volume" type="range" class="slider" min="0" max="15" oninput="on_volumechange(this)">
+            </span>
+            <span>
+                <label id="l_reg24" name="l_reg"></label>
+                <label id="reg24"></label>
+            </span>
+        </div>
+    </fieldset>
+    <fieldset style="background-color: rgb(177, 212, 80);">
+        <legend>
+            <h4>Status Registers</h4>
+        </legend>
+        <div style="display:grid; grid-template-columns: repeat(4, 170px) 1fr; align-items: center;">
+            <span>
+                <label>Analog 1:</label>
+                <label id="l_reg25" name="l_reg"></label>
+                <label id="reg25" name="rdreg">0</label>
+            </span>
+            <span>
+                <label>Analog 2:</label>
+                <label id="l_reg26" name="l_reg"></label>
+                <label id="reg26" name="rdreg">0</label>
+            </span>
+            <span>
+                <label>V3 Wave: </label>
+                <label id="l_reg27" name="l_reg"></label>
+                <label id="reg27" name="rdreg">0</label>
+            </span>
+            <span>
+                <label>V3 Envel:</label>
+                <label id="l_reg28" name="l_reg"></label>
+                <label id="reg28" name="rdreg">0</label>
+            </span>
+            
+            <input style="height: 29px; width:80px; margin-left: 10px;"type="button" id="poll" value="poll"
+                onclick="poll_regs(this)">
+            
+        </div>
+
+    </fieldset>
+    <hr>
+    <div id="software" style="background-color: white;">
+    <fieldset style="background-color:lightcoral">
+        <legend>
+            <h4>Software Effects</h4>
+        </legend>
+        <div>
+            <span>
+                <label for="chk_effect_off">Off</label>
+                <input id="chk_effect_off" type="radio" name="effects" value="0" onclick="on_effect(this)">
+                <span class="sep"></span>
+                <label for="chk_effect_wave">Wave</label>
+                <input id="chk_effect_wave" type="radio" name="effects" value="1" onclick="on_effect(this)">
+                <span class="sep"></span>
+                <label for="chk_effect_env">Envelope</label>
+                <input id="chk_effect_env" type="radio" name="effects" value="2" onclick="on_effect(this)">
+                <span class="sep"></span>
+                <label for="chk_effect_sld">Strength</label>
+                <input id="chk_effect_sld" type="range" class="slider" value="1" min="1", max="10" oninput="on_effect(this)">
+            </span>
+        </div>
+    </fieldset>
+    <fieldset style="background-color: gold;">
+        <legend>
+            <h4>Play</h4>
+        </legend>
+        <div>
+            <span>
+                <label for="sld_len1">Gate time 1</label>
+                <input type="range" id="sld_len1" value="100" min="0" max="10000" class="slider"
+                    oninput="document.getElementById('num_len1').value=this.value">
+                <input type="number" id="num_len1" name="sustain" value="100" class="number"
+                    onchange="document.getElementById('sld_len1').value=this.value">
+                <span class="sep"></span>
+                <label for="en_len1">Play</label>
+                <input type="checkbox" id="en_len1" name="sustain">
+            </span>
+        </div>
+        <div id="sus2">
+            <span>
+                <label for="sld_len2">Gate time 2</label>
+                <input type="range" id="sld_len2" value="100" min="0" max="10000" class="slider"
+                    oninput="document.getElementById('num_len2').value=this.value">
+                <input type="number" id="num_len2" name="sustain" value="100" class="number"
+                    onchange="document.getElementById('sld_len2').value=this.value">
+                <span class="sep"></span>
+                <label for="en_len2">Play</label>
+                <input type="checkbox" id="en_len2" name="sustain">
+            </span>
+        </div>
+        <div id="sus3">
+            <span>
+                <label for="sld_len3">Gate time 3</label>
+                <input type="range" id="sld_len3" value="100" min="0" max="10000" class="slider"
+                    oninput="document.getElementById('num_len3').value=this.value">
+                <input type="number" id="num_len3" name="sustain" value="100" class="number"
+                    onchange="document.getElementById('sld_len3').value=this.value">
+                <span class="sep"></span>
+                <label for="en_len3">Play</label>
+                <input type="checkbox" id="en_len3" name="sustain">
+            </span>
+        </div>
+        <div>
+            <span>
+                <label>Lock</label>
+                <input type="checkbox" id="sus_lock" onclick="{
+                    document.getElementById('sus2').hidden=this.checked;
+                    document.getElementById('sus3').hidden=this.checked;
+                    }">
+                <span class="sep"></span>
+                <input type="button" value="Play selected" onclick="on_btn_play()">
+            </span>
+        </div>
+    </fieldset>
+    </div>
+    <script src="index.js" , type="text/javascript"></script>
+
+</BODY>
+
+</HTML>
